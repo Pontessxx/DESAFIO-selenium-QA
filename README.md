@@ -1,5 +1,5 @@
 # 🚀 SauceDemo Test Automation
-!(banner)[./image.png]
+!(banner)[https://github.com/Pontessxx/DESAFIO-selenium-QA/blob/main/assets/image.png]
 
 Automação de ponta a ponta dos principais fluxos do site [SauceDemo](https://www.saucedemo.com/) usando Python + Selenium. Este repositório contém um único teste que cobre login, carrinho, checkout e confirmação de pedido.
 
