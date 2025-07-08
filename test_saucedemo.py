@@ -3,6 +3,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 import pytest
 
@@ -86,3 +88,28 @@ def test_locked_user(driver):
     # 2. Verificar mensagem de erro
     mensagem = driver.find_element(By.CSS_SELECTOR, ".error-message-container").text
     assert mensagem == "Epic sadface: Sorry, this user has been locked out."
+
+def test_problem_user(driver):
+    # 1. Acessar a página de login
+    driver.get(BASE_URL)
+    driver.find_element(By.ID, "user-name").send_keys("problem_user")
+    driver.find_element(By.ID, "password").send_keys("secret_sauce")
+    driver.find_element(By.ID, "login-button").click()
+    
+     # aguardar inventário carregar
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_all_elements_located((By.CLASS_NAME, "inventory_item"))
+    )
+    
+    # 2. Detectar imagens quebradas
+    # Executa JS para coletar todas as imagens cujo naturalWidth == 0
+    broken_imgs = driver.execute_script("""
+        return Array.from(document.querySelectorAll('.inventory_item_img img'))
+          .filter(img => !img.complete || img.naturalWidth === 0)
+          .map(img => img.src);
+    """)
+    # Você pode ajustar abaixo a quantidade esperada ou até verificar URLs específicas
+    assert len(broken_imgs) > 0, "Esperava imagens quebradas para problem_user"
+    print("Imagens quebradas detectadas:", broken_imgs)
+    
+    time.sleep(2)
