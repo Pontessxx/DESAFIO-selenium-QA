@@ -18,6 +18,7 @@ EXPECTED_IMAGES = {
     "Sauce Labs Onesie":             "onesie-1200x1500.jpg",
     "Test.allTheThings() T-Shirt (Red)": "red-tatt-1200x1500.jpg",
 }
+GLITCH_THRESHOLD = 3.0
 
 @pytest.fixture(scope="module")
 def driver():
@@ -121,10 +122,36 @@ def test_problem_user(driver):
         esperado = EXPECTED_IMAGES.get(nome)
         if esperado and arquivo != esperado:
             mismatches.append((nome, esperado, arquivo))
-
-    # 4) Asserção: o bug do problem_user é ter pelo menos um mismatch
-    assert mismatches, f"Nenhuma imagem trocada detectada, mas esperávamos: {EXPECTED_IMAGES}"
-    for nome, exp, rec in mismatches:
-        print(f"[BUG] {nome}: esperado {exp} mas recebeu {rec}")
         
     assert len(mismatches) == len(driver.find_elements(By.CLASS_NAME, "inventory_item"))
+    
+def test_performance_glitch_user(driver):
+    # 1. Acessar a página de login
+    driver.get(BASE_URL)
+    driver.find_element(By.ID, "user-name").send_keys("performance_glitch_user")
+    driver.find_element(By.ID, "password").send_keys("secret_sauce")
+    
+    # 2. Dispara o login e começa a medir
+    start = time.perf_counter()
+    driver.find_element(By.ID, "login-button").click()
+
+    # 3. Aguarda os itens aparecerem (até um timeout razoável)
+    WebDriverWait(driver, 15).until(
+        EC.presence_of_all_elements_located((By.CLASS_NAME, "inventory_item"))
+    )
+    load_time = time.perf_counter() - start
+
+    # 4. Valida que houve redirecionamento correto
+    assert "inventory.html" in driver.current_url, "Não redirecionou para inventory.html"
+
+    # 5. Verifica que sofreu o “glitch” (levou mais do que o normal)
+    assert load_time > GLITCH_THRESHOLD, (
+        f"Esperava que o inventory demorasse > {GLITCH_THRESHOLD:.1f}s "
+        f"para performance_glitch_user, mas carregou em {load_time:.2f}s"
+    )
+
+    # 6. (Opcional) Garante ainda que não ultrapassou um limite máximo aceitável
+    assert load_time < 15, f"Carregamento muito lento: {load_time:.2f}s"
+
+    print(f"[PERF] performance_glitch_user inventory carregou em {load_time:.2f}s")
+

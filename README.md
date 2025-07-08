@@ -36,3 +36,6 @@ ou
 ### problem_user
 O SauceDemo não “quebra” de fato as imagens para o problem_user (naturalWidth==0), mas troca as imagens de produto – ou seja, elas carregam, só não correspondem ao nome. Por isso o seu broken_imgs ficou vazio.
 eu irei manter o `@pytest.mark.xfail`pois é um bug conhecido e não me gera no cmd o FAILURE, assim quando for de fato corrigido eu irei receber um XPASS.
+Caso for um corpotamento esperado, pois isso sempre está acontecendo com esse usuario entao transformaria para um teste normal
+
+### performance_glitch_user
