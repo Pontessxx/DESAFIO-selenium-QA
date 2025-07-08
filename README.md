@@ -1,5 +1,5 @@
 # 🚀 SauceDemo Test Automation
-!(banner)[https://github.com/Pontessxx/DESAFIO-selenium-QA/blob/main/assets/image.png]
+![banner](https://raw.githubusercontent.com/Pontessxx/DESAFIO-selenium-QA/main/assets/image.png)
 
 Automação de ponta a ponta dos principais fluxos do site [SauceDemo](https://www.saucedemo.com/) usando Python + Selenium. Este repositório contém um único teste que cobre login, carrinho, checkout e confirmação de pedido.
 
@@ -13,10 +13,6 @@ Automação de ponta a ponta dos principais fluxos do site [SauceDemo](https://w
 # Como executar os testes
 
 Você pode rodar com :
-```cmd
-    python tests/test_saucedemo.py
-```
-ou
 ```cmd
     pytest --disable-warnings -q
 ```
