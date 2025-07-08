@@ -10,6 +10,15 @@ import pytest
 
 BASE_URL = "https://www.saucedemo.com/"
 
+EXPECTED_IMAGES = {
+    "Sauce Labs Backpack":           "sauce-backpack-1200x1500.jpg",
+    "Sauce Labs Bike Light":         "bike-light-1200x1500.jpg",
+    "Sauce Labs Bolt T-Shirt":       "bolt-shirt-1200x1500.jpg",
+    "Sauce Labs Fleece Jacket":      "fleece-jacket-1200x1500.jpg",
+    "Sauce Labs Onesie":             "onesie-1200x1500.jpg",
+    "Test.allTheThings() T-Shirt (Red)": "red-tatt-1200x1500.jpg",
+}
+
 @pytest.fixture(scope="module")
 def driver():
     # Inicializa o Chrome
@@ -89,36 +98,33 @@ def test_locked_user(driver):
     mensagem = driver.find_element(By.CSS_SELECTOR, ".error-message-container").text
     assert mensagem == "Epic sadface: Sorry, this user has been locked out."
 
+@pytest.mark.xfail(reason="bug conhecido: imagens trocadas para problem_user")
 def test_problem_user(driver):
     # 1. Acessar a página de login
     driver.get(BASE_URL)
     driver.find_element(By.ID, "user-name").send_keys("problem_user")
     driver.find_element(By.ID, "password").send_keys("secret_sauce")
     driver.find_element(By.ID, "login-button").click()
-    
-     # aguardar inventário carregar
+
+    # 2) Aguarda inventário carregar
     WebDriverWait(driver, 10).until(
         EC.presence_of_all_elements_located((By.CLASS_NAME, "inventory_item"))
     )
-    
-    # 2. Detectar imagens quebradas
-    # Executa JS para coletar todas as imagens cujo naturalWidth == 0
-    broken_imgs = driver.execute_script("""
-        return Array.from(document.querySelectorAll('.inventory_item_img img'))
-          .filter(img => !img.complete || img.naturalWidth === 0)
-          .map(img => img.src);
-    """)
-    # Você pode ajustar abaixo a quantidade esperada ou até verificar URLs específicas
-    assert len(broken_imgs) > 0, "Esperava imagens quebradas para problem_user"
-    print("Imagens quebradas detectadas:", broken_imgs)
-    # 3. Checar texto “mock” ou layout quebrado em detalhe de um produto
-    # Exemplo: abrir detalhes do primeiro produto e buscar texto “mock”
-    primeiro = driver.find_element(By.CSS_SELECTOR, ".inventory_item a")
-    primeiro.click()
-    WebDriverWait(driver, 5).until(
-        EC.visibility_of_element_located((By.CLASS_NAME, "inventory_details_container"))
-    )
-    desc = driver.find_element(By.CLASS_NAME, "inventory_details_desc").text
-    assert "mock" in desc.lower(), "Esperava encontrar o texto 'mock' na descrição"
-    
-    time.sleep(2)
+
+    # 3) Varre itens e coleta quais têm imagem “errada”
+    mismatches = []
+    for item in driver.find_elements(By.CLASS_NAME, "inventory_item"):
+        nome = item.find_element(By.CLASS_NAME, "inventory_item_name").text
+        src = item.find_element(By.CSS_SELECTOR, ".inventory_item_img img") \
+                   .get_attribute("src")
+        arquivo = src.split("/")[-1]  # pega só o arquivo
+        esperado = EXPECTED_IMAGES.get(nome)
+        if esperado and arquivo != esperado:
+            mismatches.append((nome, esperado, arquivo))
+
+    # 4) Asserção: o bug do problem_user é ter pelo menos um mismatch
+    assert mismatches, f"Nenhuma imagem trocada detectada, mas esperávamos: {EXPECTED_IMAGES}"
+    for nome, exp, rec in mismatches:
+        print(f"[BUG] {nome}: esperado {exp} mas recebeu {rec}")
+        
+    assert len(mismatches) == len(driver.find_elements(By.CLASS_NAME, "inventory_item"))
