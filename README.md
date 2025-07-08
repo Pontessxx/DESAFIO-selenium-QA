@@ -20,3 +20,8 @@ Você pode rodar com :
 ## Cenário de teste
 
 Login - `standard_user`/`secret_sauce`, validação de redirecionamento para o inventory.html
+Adicionar ao Carrinho - Inclui dois produtos diferentes, valida o redirecionamento para cart.html
+Remover do Carrinho o item[0]
+Checkout preenchendo o first-name, last-name e postal-code valida redirecionamento para checkout-step-two.html
+Finaliza a Compra clicando em Finish e verifica checkout-complete.html
+Confirmação com a msg na tela de "Thank you for your order"

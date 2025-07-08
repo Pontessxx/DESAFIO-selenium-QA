@@ -31,10 +31,7 @@ def driver():
     drv.quit()
 
 def test_fluxo_completo(driver):
-    # 1. Acessar a página de login
-    #  TODO:
-    #TODO Verificar a mensagem de confirmação de compra
-    
+    # 1. Acessar a página de login  
     driver.get(BASE_URL)
     driver.find_element(By.ID, "user-name").send_keys("standard_user")
     driver.find_element(By.ID, "password").send_keys("secret_sauce")
@@ -67,6 +64,13 @@ def test_fluxo_completo(driver):
     
     driver.find_element(By.ID, "continue").click()
     assert "checkout-step-two.html" in driver.current_url
+    
+    driver.find_element(By.ID, "finish").click()
+    assert "checkout-complete.html" in driver.current_url
+
+    # 6. Verificar mensagem de confirmação
+    mensagem = driver.find_element(By.CSS_SELECTOR, ".complete-header").text
+    assert mensagem.strip("!").upper() == "THANK YOU FOR YOUR ORDER"
 
     # tempo para esperar a página carregar
     time.sleep(2)
