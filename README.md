@@ -18,10 +18,17 @@ Você pode rodar com :
 ```
 
 ## Cenário de teste
+### standart_user
+</br>Login - `standard_user`/`secret_sauce`, validação de redirecionamento para o inventory.html
+</br>Adicionar ao Carrinho - Inclui dois produtos diferentes, valida o redirecionamento para cart.html
+</br>Remover do Carrinho o item[0]
+</br>Checkout preenchendo o first-name, last-name e postal-code valida redirecionamento para checkout-step-two.html
+</br>Finaliza a Compra clicando em Finish e verifica checkout-complete.html
+</br>Confirmação com a msg na tela de "Thank you for your order"
 
-Login - `standard_user`/`secret_sauce`, validação de redirecionamento para o inventory.html
-Adicionar ao Carrinho - Inclui dois produtos diferentes, valida o redirecionamento para cart.html
-Remover do Carrinho o item[0]
-Checkout preenchendo o first-name, last-name e postal-code valida redirecionamento para checkout-step-two.html
-Finaliza a Compra clicando em Finish e verifica checkout-complete.html
-Confirmação com a msg na tela de "Thank you for your order"
+### locked_out_user
+</br>O usuario não entra e aparece a msg "Epic sadface: Sorry, this user has been locked out."
+
+### problem_user
+O SauceDemo não “quebra” de fato as imagens para o problem_user (naturalWidth==0), mas troca as imagens de produto – ou seja, elas carregam, só não correspondem ao nome. Por isso o seu broken_imgs ficou vazio.
+

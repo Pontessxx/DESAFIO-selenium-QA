@@ -75,7 +75,7 @@ def test_fluxo_completo(driver):
     assert mensagem.strip("!").upper() == "THANK YOU FOR YOUR ORDER"
 
     # tempo para esperar a página carregar
-    time.sleep(2)
+    # time.sleep(2)
 
 
 def test_locked_user(driver):
@@ -111,5 +111,14 @@ def test_problem_user(driver):
     # Você pode ajustar abaixo a quantidade esperada ou até verificar URLs específicas
     assert len(broken_imgs) > 0, "Esperava imagens quebradas para problem_user"
     print("Imagens quebradas detectadas:", broken_imgs)
+    # 3. Checar texto “mock” ou layout quebrado em detalhe de um produto
+    # Exemplo: abrir detalhes do primeiro produto e buscar texto “mock”
+    primeiro = driver.find_element(By.CSS_SELECTOR, ".inventory_item a")
+    primeiro.click()
+    WebDriverWait(driver, 5).until(
+        EC.visibility_of_element_located((By.CLASS_NAME, "inventory_details_container"))
+    )
+    desc = driver.find_element(By.CLASS_NAME, "inventory_details_desc").text
+    assert "mock" in desc.lower(), "Esperava encontrar o texto 'mock' na descrição"
     
     time.sleep(2)
