@@ -33,7 +33,6 @@ def driver():
 def test_fluxo_completo(driver):
     # 1. Acessar a página de login
     #  TODO:
-    #TODO Fazer o checkout com informações fictícias
     #TODO Verificar a mensagem de confirmação de compra
     
     driver.get(BASE_URL)
@@ -58,7 +57,16 @@ def test_fluxo_completo(driver):
     driver.find_element(By.CSS_SELECTOR, ".cart_item .btn_secondary").click()  # remove o primeiro
     itens = driver.find_elements(By.CSS_SELECTOR, ".cart_item")
     assert len(itens) == 1
-
+    
+    driver.find_element(By.ID, "checkout").click()
+    assert "checkout-step-one.html" in driver.current_url
+    driver.find_element(By.ID, "first-name").send_keys("Henrique")
+    driver.find_element(By.ID, "last-name").send_keys("Pontes")
+    driver.find_element(By.ID, "postal-code").send_keys("12345")
+    
+    
+    driver.find_element(By.ID, "continue").click()
+    assert "checkout-step-two.html" in driver.current_url
 
     # tempo para esperar a página carregar
     time.sleep(2)
