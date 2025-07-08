@@ -74,3 +74,15 @@ def test_fluxo_completo(driver):
 
     # tempo para esperar a página carregar
     time.sleep(2)
+
+
+def test_locked_user(driver):
+    # 1. Acessar a página de login
+    driver.get(BASE_URL)
+    driver.find_element(By.ID, "user-name").send_keys("locked_out_user")
+    driver.find_element(By.ID, "password").send_keys("secret_sauce")
+    driver.find_element(By.ID, "login-button").click()
+    
+    # 2. Verificar mensagem de erro
+    mensagem = driver.find_element(By.CSS_SELECTOR, ".error-message-container").text
+    assert mensagem == "Epic sadface: Sorry, this user has been locked out."
