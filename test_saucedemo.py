@@ -1,0 +1,48 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+import pytest
+
+BASE_URL = "https://www.saucedemo.com/"
+
+@pytest.fixture(scope="module")
+def driver():
+    # Inicializa o Chrome
+    options = webdriver.ChromeOptions()
+    prefs = {
+        # desabilita o serviço de credenciais e o prompt normal de salvar senha
+        "credentials_enable_service": False,
+        "profile.password_manager_enabled": False,
+        # desabilita a checagem de vazamento de senhas (o “unsafe password”) -> stack overflow.com/questions/74793098/selenium-chrome-unsafe-password-popup
+        "profile.password_manager_leak_detection": False,
+        # desativa o Safe Browsing que dispara esse pop-up :contentReference[oaicite:1]{index=1} -> stackoverflow.com/questions/74793098/selenium-chrome-unsafe-password-popup
+        "safebrowsing.enabled": False
+    }
+    options.add_experimental_option("prefs", prefs)
+    
+    options.add_argument("--start-maximized")
+    options.add_argument("--disable-notifications")
+    
+    drv = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    yield drv
+    drv.quit()
+
+def test_fluxo_completo(driver):
+    # 1. Acessar a página de login
+    #  TODO:
+    #TODO Adicionar o primeiro e o segundo produto ao carrinho
+    #TODO Remover o primeiro produto do carrinho
+    #TODO Fazer o checkout com informações fictícias
+    #TODO Verificar a mensagem de confirmação de compra
+    
+    driver.get(BASE_URL)
+    driver.find_element(By.ID, "user-name").send_keys("standard_user")
+    driver.find_element(By.ID, "password").send_keys("secret_sauce")
+    driver.find_element(By.ID, "login-button").click()
+    assert "inventory.html" in driver.current_url
+
+    # tempo para esperar a página carregar
+    time.sleep(2)
