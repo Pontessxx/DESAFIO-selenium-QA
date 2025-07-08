@@ -33,7 +33,6 @@ def driver():
 def test_fluxo_completo(driver):
     # 1. Acessar a página de login
     #  TODO:
-    #TODO Adicionar o primeiro e o segundo produto ao carrinho
     #TODO Remover o primeiro produto do carrinho
     #TODO Fazer o checkout com informações fictícias
     #TODO Verificar a mensagem de confirmação de compra
@@ -43,6 +42,20 @@ def test_fluxo_completo(driver):
     driver.find_element(By.ID, "password").send_keys("secret_sauce")
     driver.find_element(By.ID, "login-button").click()
     assert "inventory.html" in driver.current_url
+    
+    produtos = driver.find_elements(By.CSS_SELECTOR, ".inventory_item")
+    adiciona_btns = driver.find_elements(By.CSS_SELECTOR, ".btn_inventory")
+    # os produtos são adicionados ao carrinho todos
+    adiciona_btns[0].click()
+    adiciona_btns[1].click()
+    # adiciona_btns[2].click()
+    # adiciona_btns[3].click()
+    # adiciona_btns[4].click()
+    # adiciona_btns[5].click()
+    
+    driver.find_element(By.CLASS_NAME, "shopping_cart_link").click()
+    assert "cart.html" in driver.current_url
+    
 
     # tempo para esperar a página carregar
     time.sleep(2)
