@@ -106,7 +106,6 @@ def test_problem_user(driver):
     driver.find_element(By.ID, "user-name").send_keys("problem_user")
     driver.find_element(By.ID, "password").send_keys("secret_sauce")
     driver.find_element(By.ID, "login-button").click()
-
     # 2) Aguarda inventário carregar
     WebDriverWait(driver, 10).until(
         EC.presence_of_all_elements_located((By.CLASS_NAME, "inventory_item"))
@@ -124,6 +123,36 @@ def test_problem_user(driver):
             mismatches.append((nome, esperado, arquivo))
         
     assert len(mismatches) == len(driver.find_elements(By.CLASS_NAME, "inventory_item"))
+    
+    # 2) Adiciona o primeiro item
+    add_btn = driver.find_elements(By.CSS_SELECTOR, ".btn_inventory")[0]
+    add_btn.click()
+    
+    # 3) Tenta remover o mesmo item
+    remove_btn = driver.find_element(By.CSS_SELECTOR, ".btn_secondary")
+    remove_btn.click()
+    
+    # 4) Verifica que o item NÃO foi removido do inventário
+    items_after = driver.find_elements(By.CLASS_NAME, "inventory_item")
+    assert len(items_after) >= 6, (
+        "Esperava que o inventário continuasse com todos os itens, "
+        f"mas encontrou apenas {len(items_after)}"
+    )
+    
+    # 5) Navega para o checkout para reproduzir o glitch de input
+    driver.find_element(By.CLASS_NAME, "shopping_cart_link").click()
+    driver.find_element(By.ID, "checkout").click()
+    WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.ID, "first-name")))
+    
+    # 6) Digita um nome e confirma que o valor exibido está VA RIAD O
+    first_name = driver.find_element(By.ID, "first-name")
+    first_name.send_keys("QA Test")
+    valor_input = first_name.get_attribute("value")
+    assert valor_input != "QA Test", (
+        f"Esperava input alterado pelo glitch, mas recebi exatamente '{valor_input}'"
+    )
+    
+    
     
 def test_performance_glitch_user(driver):
     # 1. Acessar a página de login
@@ -154,4 +183,15 @@ def test_performance_glitch_user(driver):
     assert load_time < 15, f"Carregamento muito lento: {load_time:.2f}s"
 
     print(f"[PERF] performance_glitch_user inventory carregou em {load_time:.2f}s")
+    
+def test_error_user(driver):
+    # 1. Acessar a página de login
+    driver.get(BASE_URL)
+    driver.find_element(By.ID, "user-name").send_keys("error_user")
+    driver.find_element(By.ID, "password").send_keys("secret_sauce")
+    
+    # 2. Dispara o login
+    driver.find_element(By.ID, "login-button").click()
+    
+    
 
