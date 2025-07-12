@@ -99,7 +99,7 @@ def test_locked_user(driver):
     mensagem = driver.find_element(By.CSS_SELECTOR, ".error-message-container").text
     assert mensagem == "Epic sadface: Sorry, this user has been locked out."
 
-# @pytest.mark.xfail(reason="bug conhecido: imagens trocadas para problem_user")
+@pytest.mark.xfail(reason="bug conhecido: imagens trocadas para problem_user, glich last-name/first-name")
 def test_problem_user(driver):
     # 1. Acessar a página de login
     driver.get(BASE_URL)
@@ -144,10 +144,27 @@ def test_problem_user(driver):
     driver.find_element(By.ID, "checkout").click()
     WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.ID, "first-name")))
     
-    # 6) Digita um nome e confirma que o valor exibido está VA RIAD O
-    first_name = driver.find_element(By.ID, "first-name")
-    first_name.send_keys("Henrique")
-    driver.find_element(By.ID, "last-name").send_keys("Pontes")
+    # ao tentar preencher o campo "first-name", o valor não deve ser alterado
+    # (bug conhecido do site)
+    # o campo "last-name" deve ser preenchido com "s" e o valor deve ser validado
+    first = driver.find_element(By.ID, "first-name")
+    first.send_keys("Henrique")
+    assert first.get_attribute("value") == "Henrique"
+    
+    last = driver.find_element(By.ID, "last-name")
+    last.send_keys("Pontes")
+    
+    assert last.get_attribute("value") == "", (
+        f"Esperava last-name vazio, mas recebi '{last.get_attribute('value')}'"
+    )
+
+    # e o first-name acaba só com a última letra digitada: 's'
+    assert first.get_attribute("value")[-1] == "s", (
+        f"Esperava glitch no first-name terminando em 's', "
+        f"mas recebi '{first.get_attribute('value')}'"
+    )
+    
+    
     driver.find_element(By.ID, "postal-code").send_keys("12345")
     
     time.sleep(3)
